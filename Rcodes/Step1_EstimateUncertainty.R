@@ -25,11 +25,11 @@ library(spatialEco)
 
 set.seed(1234)
 
-dir_uncertainty_raw <- '/media/qnap2/assembled_data/prediction/PM25_USGrid_Uncertainty/'
-dir_uncertainty_save <- '/media/qnap4/Yaguang/EME/data/Uncertainty/'
-dir_shp <- '/media/qnap4/Yaguang/ZIPCODE_INFO/polygon/'
-dir_pobox <- '/media/qnap4/Yaguang/ZIPCODE_INFO/pobox_csv/'
-dir_results_save <- '/media/qnap4/Yaguang/EME/results/'
+dir_uncertainty_raw <- '~/PM25_USGrid_Uncertainty/'
+dir_uncertainty_save <- '~/data/Uncertainty/'
+dir_shp <- '~/ZIPCODE_INFO/polygon/'
+dir_pobox <- '~/ZIPCODE_INFO/pobox_csv/'
+dir_results_save <- '~/results/'
 
 
 
