@@ -12,9 +12,9 @@ library(utils)
 library(data.table)
 library(dplyr)
 
-dir_uncertainty <- '/media/qnap4/Yaguang/EME/data/Uncertainty/'
-dir_simulation <- '/media/qnap4/Yaguang/EME/data/SimulationData/'
-dir_monitor_correlation <- '/media/qnap4/Yaguang/EME/data/SpatialCorrelation/'
+dir_uncertainty <- '~/data/Uncertainty/'
+dir_simulation <- '~/data/SimulationData/'
+dir_monitor_correlation <- '~/data/SpatialCorrelation/'
 
 
 
