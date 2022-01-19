@@ -16,8 +16,8 @@ library(mgcv)
 library(dplyr)
 library(doParallel)
 
-dir_data <- '/n/home07/yaw624/EME/data/'    ### change data directory
-dir_results <- '/n/home07/yaw624/EME/results/Softplus/'   ### change directory for saving results
+dir_data <- '~/data/'    ### change data directory
+dir_results <- '~/results/Softplus/'   ### change directory for saving results
 
 
 
