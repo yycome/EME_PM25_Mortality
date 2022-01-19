@@ -1,7 +1,7 @@
 ###############################################################################
 # Project: Exposure measurement error                                         #
 # Code: compile results                                                       #
-# Machine: local                                                              #
+# Machine: QNAP                                                               #
 ###############################################################################
 
 ############################# 0. Setup ##############################
@@ -27,7 +27,7 @@ dir_results_save <- '/media/qnap4/Yaguang/EME/results/'
 
 
 
-###################### 1. Descriptive statistics ########################
+###################### 1. descriptive statistics ########################
 ### summarize PM2.5
 dat_original <- readRDS(paste0(dir_data,'counts_weight_pred_sd_20211221.rds'))
 
@@ -41,39 +41,6 @@ sd(dat_original$pm25)
 quantile(dat_original$pm25,c(0.01,0.99))
 # 1%       99%
 # 2.713217 17.035318
-
-### Calculate ratio of variance of error-prone vs variance of error-free exposure
-key_files <- list.files(path=dir_data,pattern = "^counts_covar_simu_set_50_(.*)rds$")
-dat_errors <- readRDS(paste0(dir_data,key_files[1]))
-dat_errors$zip <- NULL
-dat_errors$year <- NULL
-for (i in 2:length(key_files)) {
-  dat_errors_tmp <- readRDS(paste0(dir_data,key_files[i]))
-  dat_errors_tmp$zip <- NULL
-  dat_errors_tmp$year <- NULL
-  dat_errors <- bind_rows(dat_errors,dat_errors_tmp)
-  rm(dat_errors_tmp)
-  gc()
-  print(paste0("Key file ",i," is done"))
-}
-
-dat_errors$pm25_error_sp_sd <- dat_errors$pm25+dat_errors$annual_sp_err_sd
-dat_errors$pm25_error_sp_2sd <- dat_errors$pm25+dat_errors$annual_sp_err_2sd
-dat_errors$pm25_error_sp_3sd <- dat_errors$pm25+dat_errors$annual_sp_err_3sd
-
-sd(dat_errors$pm25,na.rm=TRUE)
-# [1] 3.243059
-sd(dat_errors$pm25_error_sp_sd,na.rm=TRUE)
-# [1] 3.245377
-sd(dat_errors$pm25_error_sp_2sd,na.rm=TRUE)
-# [1] 3.255555
-sd(dat_errors$pm25_error_sp_3sd,na.rm=TRUE)
-# [1] 3.2725
-
-(3.2725/3.243059)^2
-# [1] 1.018239
-(3.243059/3.2725)^2
-# [1] 0.982088
 
 
 
