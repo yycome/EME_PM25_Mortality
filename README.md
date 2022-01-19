@@ -13,5 +13,7 @@ The grid-level PM2.5 data are publicly available at https://sedac.ciesin.columbi
  - The simulation process under soft-threshold concentration-response model is performed with script "Step4_Simulation_Softplus.R".
  - Results are compiled with script "Step5_CompileResults.R"
 
+# Simulation results (in directory "Results")
+
 
 
