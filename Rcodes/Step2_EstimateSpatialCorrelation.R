@@ -16,7 +16,7 @@ library(nngeo)
 library(leaflet)
 library(sf)
 
-dir_monitor_correlation <- '/media/qnap4/Yaguang/EME/data/SpatialCorrelation/'
+dir_monitor_correlation <- '~/data/SpatialCorrelation/'
 
 
 
