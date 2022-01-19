@@ -16,14 +16,14 @@ library(latex2exp)
 library(data.table)
 library(stringr)
 
-dir_data <- '/media/qnap4/Yaguang/EME/data/SimulationData/'
-dir_uncertainty <- '/media/qnap4/Yaguang/EME/data/Uncertainty/'
-dir_results_linear <- '/media/qnap4/Yaguang/EME/results/Linear/'
-dir_results_linear_lowlevel <- '/media/qnap4/Yaguang/EME/results/Linear_LowLevel/'
-dir_results_quadratic_quadratic <- '/media/qnap4/Yaguang/EME/results/Quadratic_Quadratic/'
-dir_results_quadratic_penalized <- '/media/qnap4/Yaguang/EME/results/Quadratic_Penalized/'
-dir_results_softplus <- '/media/qnap4/Yaguang/EME/results/Softplus/'
-dir_results_save <- '/media/qnap4/Yaguang/EME/results/'
+dir_data <- '~/data/SimulationData/'
+dir_uncertainty <- '~/data/Uncertainty/'
+dir_results_linear <- '~/results/Linear/'
+dir_results_linear_lowlevel <- '~/results/Linear_LowLevel/'
+dir_results_quadratic_quadratic <- '~/results/Quadratic_Quadratic/'
+dir_results_quadratic_penalized <- '~/results/Quadratic_Penalized/'
+dir_results_softplus <- '~/results/Softplus/'
+dir_results_save <- '~/results/'
 
 
 
