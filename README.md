@@ -7,6 +7,10 @@ The grid-level PM2.5 data are publicly available at https://sedac.ciesin.columbi
  - The exposure uncertainty is estimated with script "Step1_EstimateUncertainty.R".
  - The spatial correlation information is obtained with script "Step2_EstimateSpatialCorrelation.R".
  - The simulation datasets are generated with script "Step3_GenerateSimulationData.R".
+ - The simulation process under linear concentration-response model is performed with script "Step4_Simulation_Linear.R".
+ - The simulation process under linear concentration-response model at low exposure levels is performed with script "Step4_Simulation_Linear_LowLevel.R".
+ - The simulation process under quadratic concentration-response model is performed with scripts "Step4_Simulation_Quadratic_Quadratic.R" and "Step4_Simulation_Quadratic_Penalized.R".
+ - The simulation process under soft-threshold concentration-response model is performed with script "Step4_Simulation_Softplus.R".
  - Results are compiled with script "Step5_CompileResults.R"
 
 
