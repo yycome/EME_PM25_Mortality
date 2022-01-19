@@ -1,6 +1,6 @@
 #################################################################################
 # Project: Exposure measurement error                                           #
-# Code: Step 2 - generate datasets for simulation                               #
+# Code: Step 3 - generate datasets for simulation                               #
 # Machine: QNAP                                                                 #
 #################################################################################
 
