@@ -652,3 +652,27 @@ dev.off()
 
 
 
+############## 9. Table S2. coefficients and CIs in linear dr model ##############
+# main analysis and single-pollutant analysis
+results_linear_files_list <- Sys.glob(paste0(dir_results_linear,"results*.rds"))
+results_linear_files <- lapply(results_linear_files_list,readRDS)
+results_linear_raw <- rbindlist(results_linear_files)
+results_linear <- results_linear_raw %>% group_by(type,corr_magnitude,pollutants,b0,b1) %>% 
+  summarize(b1_est_avg=mean(b1_est),b1_est_lb=quantile(b1_est, 0.025),b1_est_ub=quantile(b1_est, 0.975)) %>% 
+  ungroup()
+results_linear$corr_magnitude <- factor(results_linear$corr_magnitude,levels=c('sp_error_sd','sp_error_2sd','sp_error_3sd',
+                                                                               'ind_error_sd','ind_error_2sd','ind_error_3sd'))
+results_linear <- results_linear[order(results_linear$b0,results_linear$b1,results_linear$type,results_linear$corr_magnitude),]
+results_linear_multi <- results_linear[results_linear$pollutants=='multi',]
+results_linear_single <- results_linear[results_linear$pollutants=='single',]
+
+# low-level analysis
+results_linear_lowlevel_files_list <- Sys.glob(paste0(dir_results_linear_lowlevel,"results*.rds"))
+results_linear_lowlevel_files <- lapply(results_linear_lowlevel_files_list,readRDS)
+results_linear_lowlevel_raw <- rbindlist(results_linear_lowlevel_files)
+results_linear_lowlevel <- results_linear_lowlevel_raw %>% group_by(type,corr_magnitude,b0,b1) %>% 
+  summarize(b1_est_avg=mean(b1_est),b1_est_lb=quantile(b1_est, 0.025),b1_est_ub=quantile(b1_est, 0.975)) %>% 
+  ungroup()
+results_linear_lowlevel$corr_magnitude <- factor(results_linear_lowlevel$corr_magnitude,levels=c('sp_error_sd','sp_error_2sd','sp_error_3sd',
+                                                                                                 'ind_error_sd','ind_error_2sd','ind_error_3sd'))
+results_linear_lowlevel <- results_linear_lowlevel[order(results_linear_lowlevel$b0,results_linear_lowlevel$b1,results_linear_lowlevel$type,results_linear_lowlevel$corr_magnitude),]
