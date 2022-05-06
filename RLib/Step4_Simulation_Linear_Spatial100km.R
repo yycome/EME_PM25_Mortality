@@ -1,6 +1,7 @@
 ###############################################################################
 # Project: Exposure measurement error                                         #
-# Code: Step 4 - simulation - linear dr relation                              #
+# Code: Step 4 - simulation - linear dr relation with                         #
+#                range of spatial correlation 0-100km                         #
 # Machine: QNAP                                                               #
 ###############################################################################
 
