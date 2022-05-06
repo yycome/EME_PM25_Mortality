@@ -1,6 +1,6 @@
 ###############################################################################
 # Project: Exposure measurement error                                         #
-# Code: Step 4 - simulation - linear dr relation at low exposure levels       #
+# Code: Step 4 - simulation - linear cr relation at low exposure levels       #
 # Machine: Cannon                                                             #
 ###############################################################################
 
