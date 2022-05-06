@@ -177,7 +177,7 @@ dev.off()
 
 
 
-###################### 5. Fig 4. Quadratic dr model ########################
+###################### 5. Fig 4. Quadratic cr model ########################
 # ### reformat quadratic quadratic results
 # files_quadratic_quadratic <- list.files(path=dir_results_quadratic_quadratic)
 # for (i in 1:length(files_quadratic_quadratic)) {
@@ -369,7 +369,7 @@ dev.off()
 
 
 
-###################### 6. Fig 5. Soft-threshold dr model ########################
+###################### 6. Fig 5. Soft-threshold cr model ########################
 ### extract results
 files_softplus <- Sys.glob(paste0(dir_results_softplus,"results_set*.rds"))
 files_softplus_ls <- lapply(files_softplus,readRDS)
@@ -504,7 +504,7 @@ ggsave(paste0(dir_results_save,"Fig_S2.png"),width=6,height=4,dpi=600)
 
 
 
-###################### 8. Fig S3. Quadratic dr model ########################
+###################### 8. Fig S3. Quadratic cr model ########################
 ### extract quadratic quadratic results
 files_quadratic_quadratic <- Sys.glob(paste0(dir_results_quadratic_quadratic,'results_set*.rds'))
 files_quadratic_quadratic_ls <- lapply(files_quadratic_quadratic,readRDS)
@@ -670,7 +670,7 @@ dev.off()
 
 
 
-###################### 9. Fig S4. Soft-threshold dr model ########################
+###################### 9. Fig S4. Soft-threshold cr model ########################
 ### extract results
 files_softplus <- Sys.glob(paste0(dir_results_softplus,"results_set*.rds"))
 files_softplus_ls <- lapply(files_softplus,readRDS)
@@ -761,7 +761,7 @@ dev.off()
 
 
 
-############## 10. Table S6 & S7. coefficients and CIs in linear dr model ##############
+############## 10. Table S6 & S7. coefficients and CIs in linear cr model ##############
 # main analysis and single-pollutant analysis
 results_linear_files_list <- Sys.glob(paste0(dir_results_linear,"results*.rds"))
 results_linear_files <- lapply(results_linear_files_list,readRDS)
