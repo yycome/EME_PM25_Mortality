@@ -1,6 +1,6 @@
 ###############################################################################
 # Project: Exposure measurement error                                         #
-# Code: Step 4 - simulation - linear dr relation                              #
+# Code: Step 4 - simulation - linear cr relation                              #
 # Machine: QNAP                                                               #
 ###############################################################################
 
@@ -537,7 +537,6 @@ covar$region5_5 <- ifelse(covar$region5==5,1,0)
 
 # read in measurement error datasets
 key_files <- list.files(path=dir_data,pattern = "^counts_covar_simu_set_50_(.*)rds$")
-key <- readRDS(paste0(dir_data,key_files[1]))
 
 # parameter setting
 b0_list <- c(log(8),log(12),log(20))
