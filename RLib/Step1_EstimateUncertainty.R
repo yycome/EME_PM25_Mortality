@@ -60,7 +60,7 @@ Data <- cbind(OutputData,InputData) #2156 monitors daily data
 # #   <fct>     <int>
 # # 1 220330009  5728
 # Data_acf_group <- Data_acf %>% group_by(doy) %>% summarise(mean_res=mean(res))
-# png(filename = paste0(dir_results_save,"Fig_S1_new.png"), height = 4, width = 6, units = "in",res = 300)
+# png(filename = paste0(dir_results_save,"Fig_S1.png"), height = 4, width = 6, units = "in",res = 300)
 # acf(Data_acf_group$mean_res,lag.max = 100,main='',ylab='Autocorrelation')
 # dev.off()
 
@@ -69,7 +69,7 @@ Data_res <- Data[,c("SiteCode","Date","Year","Month","res")]
 Data_res <- Data_res[order(Data_res$SiteCode,Data_res$Date),]
 Data_res <- Data_res %>% group_by(SiteCode) %>% slice(seq(1, n(), by = 2)) %>% ungroup()
 Data_res_sd <- aggregate(res ~ Year + SiteCode,data = Data_res,FUN = sd, na.action = na.omit)
-Data_res_sd$res <- Data_res_sd$res    ### divide by squared root of the number of sampled days in each year 
+Data_res_sd$res <- Data_res_sd$res/sqrt(365/2)    ### divide by squared root of the number of sampled days in each year 
 names(Data_res_sd)[which(names(Data_res_sd) == "res")] <- "res_sd"  # rename
 
 Data_cov <- aggregate(cbind(Other_Lat,Other_Lon,pred_ensemble_2,USElevation_med100,USElevation_std100,RoadDensity_roads1000,NLCD_Impervious100, NLCD_Developed10000,PM25_Region,MOD09A1,REANALYSIS_shum_2m_DailyMean,NLCD_canopy100,MOD13A2_Nearest4) ~ Year + SiteCode,
