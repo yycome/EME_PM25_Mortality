@@ -25,11 +25,11 @@ library(spatialEco)
 
 set.seed(1234)
 
-dir_uncertainty_raw <- '~/PM25_USGrid_Uncertainty/'
-dir_uncertainty_save <- '~/data/Uncertainty/'
-dir_shp <- '~/ZIPCODE_INFO/polygon/'
-dir_pobox <- '~/ZIPCODE_INFO/pobox_csv/'
-dir_results_save <- '~/results/'
+dir_uncertainty_raw <- '/media/qnap2/assembled_data/prediction/PM25_USGrid_Uncertainty/'
+dir_uncertainty_save <- '/media/qnap4/Yaguang/EME/data/Uncertainty/'
+dir_shp <- '/media/qnap4/Yaguang/ZIPCODE_INFO/polygon/'
+dir_pobox <- '/media/qnap4/Yaguang/ZIPCODE_INFO/pobox_csv/'
+dir_results_save <- '/media/qnap4/Yaguang/EME/results/'
 
 
 
@@ -55,7 +55,7 @@ Data <- cbind(OutputData,InputData) #2156 monitors daily data
 # # Min. 1st Qu.  Median  Mean   3rd Qu.  Max.
 # # 4.0   372.5  1088.0  1334.5  1826.5  5728.0
 # Data_acf_group_n[Data_acf_group_n$n==max(Data_acf_group_n$n,na.rm=TRUE),]
-# # # A tibble: 1 × 2
+# # # A tibble: 1 Ã— 2
 # #   SiteCode      n
 # #   <fct>     <int>
 # # 1 220330009  5728
@@ -69,7 +69,7 @@ Data_res <- Data[,c("SiteCode","Date","Year","Month","res")]
 Data_res <- Data_res[order(Data_res$SiteCode,Data_res$Date),]
 Data_res <- Data_res %>% group_by(SiteCode) %>% slice(seq(1, n(), by = 2)) %>% ungroup()
 Data_res_sd <- aggregate(res ~ Year + SiteCode,data = Data_res,FUN = sd, na.action = na.omit)
-Data_res_sd$res <- Data_res_sd$res/sqrt((365/2))
+Data_res_sd$res <- Data_res_sd$res    ### divide by squared root of the number of sampled days in each year 
 names(Data_res_sd)[which(names(Data_res_sd) == "res")] <- "res_sd"  # rename
 
 Data_cov <- aggregate(cbind(Other_Lat,Other_Lon,pred_ensemble_2,USElevation_med100,USElevation_std100,RoadDensity_roads1000,NLCD_Impervious100, NLCD_Developed10000,PM25_Region,MOD09A1,REANALYSIS_shum_2m_DailyMean,NLCD_canopy100,MOD13A2_Nearest4) ~ Year + SiteCode,
@@ -246,3 +246,5 @@ for (i in 2:length(uncertainty_files)) {
 }
 hist(dat_uncertainty$pred_res_sd, col=rgb(0,0,1,0.2), xlab='Estimated uncertainty', ylab='Relative frequency',
      main='', freq=FALSE)
+
+summary(dat_uncertainty$pred_res_sd)

@@ -1,7 +1,8 @@
 ##################################################################################
 # Project: Exposure measurement error                                            #
-# Code: Step 2 - estimate spatial correlation coefficients for monitored grids,  #
-#                link each zip code to those 0-10, 10-20, 20-40km around         #
+# Code: Step 2. sensitivity analysis - estimate spatial correlation coefficients # 
+#               for monitored grids, link each zip code to those 0-10, 10-20,    # 
+#               20-40, 40-100km around                                           #
 # Machine: QNAP                                                                  #
 ##################################################################################
 
@@ -79,6 +80,7 @@ years <- 2000:2016
 ls_less10km <- list()
 ls_10_20km <- list()
 ls_20_40km <- list()
+ls_40_100km <- list()
 
 for (i in 1:length(years)) {
   comb_data_monitor_tmp <- comb_data_monitor %>% mutate(year=years[i])
@@ -88,7 +90,7 @@ for (i in 1:length(years)) {
   names(comb_data_monitor_tmp)[which(names(comb_data_monitor_tmp)=='res.x')] <- 'res1'
   names(comb_data_monitor_tmp)[which(names(comb_data_monitor_tmp)=='res.y')] <- 'res2'
   
-  # create separate files for dist<=10km, 10-20km, and 20-40km
+  # create separate files for dist<=10km, 10-20km, 20-40km, and 40-100km
   comb_data_monitor_tmp_less10km <- comb_data_monitor_tmp %>% filter(dist<=10)
   comb_data_monitor_tmp_less10km$dist_gp <- 'less10km'
   comb_data_monitor_tmp_less10km <- comb_data_monitor_tmp_less10km %>% group_by(SITECODE1,year) %>% mutate(res2_avg=mean(res2,na.rm=TRUE))
@@ -107,11 +109,18 @@ for (i in 1:length(years)) {
   comb_data_monitor_tmp_20_40km <- comb_data_monitor_tmp_20_40km[,c('SITECODE1','year','res1','res2_avg','dist_gp')]
   comb_data_monitor_tmp_20_40km <- unique(comb_data_monitor_tmp_20_40km)
   
+  comb_data_monitor_tmp_40_100km <- comb_data_monitor_tmp %>% filter(dist>40 & dist<=100)
+  comb_data_monitor_tmp_40_100km$dist_gp <- '40_100km'
+  comb_data_monitor_tmp_40_100km <- comb_data_monitor_tmp_40_100km %>% group_by(SITECODE1,year) %>% mutate(res2_avg=mean(res2,na.rm=TRUE))
+  comb_data_monitor_tmp_40_100km <- comb_data_monitor_tmp_40_100km[,c('SITECODE1','year','res1','res2_avg','dist_gp')]
+  comb_data_monitor_tmp_40_100km <- unique(comb_data_monitor_tmp_40_100km)
+  
   ls_less10km[[i]] <- comb_data_monitor_tmp_less10km
   ls_10_20km[[i]] <- comb_data_monitor_tmp_10_20km
   ls_20_40km[[i]] <- comb_data_monitor_tmp_20_40km
+  ls_40_100km[[i]] <- comb_data_monitor_tmp_40_100km
   
-  rm(comb_data_monitor_tmp,comb_data_monitor_tmp_less10km,comb_data_monitor_tmp_10_20km,comb_data_monitor_tmp_20_40km)
+  rm(comb_data_monitor_tmp,comb_data_monitor_tmp_less10km,comb_data_monitor_tmp_10_20km,comb_data_monitor_tmp_20_40km,comb_data_monitor_tmp_40_100km)
   gc()
   
   print(paste0(years[i], " done"))
@@ -120,46 +129,50 @@ for (i in 1:length(years)) {
 comb_data_monitor_0016_less10km <- rbindlist(ls_less10km)
 comb_data_monitor_0016_10_20km <- rbindlist(ls_10_20km)
 comb_data_monitor_0016_20_40km <- rbindlist(ls_20_40km)
+comb_data_monitor_0016_40_100km <- rbindlist(ls_40_100km)
 
 comb_data_monitor_0016_dist_all <- full_join(comb_data_monitor_0016_less10km,comb_data_monitor_0016_10_20km,
                                              by=c('SITECODE1'='SITECODE1','year'='year'))
 comb_data_monitor_0016_dist_all <- full_join(comb_data_monitor_0016_dist_all,comb_data_monitor_0016_20_40km,
                                              by=c('SITECODE1'='SITECODE1','year'='year'))
+comb_data_monitor_0016_dist_all <- full_join(comb_data_monitor_0016_dist_all,comb_data_monitor_0016_40_100km,
+                                             by=c('SITECODE1'='SITECODE1','year'='year'))
 
 names(comb_data_monitor_0016_dist_all) <- c("SITECODE1","year","res1_less10km","res2_avg_less10km","dist_gp_less10km",
-                                            "res1_10_20km","res2_avg_10_20km","dist_gp_10_20km","res1_20_40km","res2_avg_20_40km",
-                                            "dist_gp_20_40km")
+                                            "res1_10_20km","res2_avg_10_20km","dist_gp_10_20km",
+                                            "res1_20_40km","res2_avg_20_40km","dist_gp_20_40km",
+                                            "res1_40_100km","res2_avg_40_100km","dist_gp_40_100km")
 
-saveRDS(comb_data_monitor_0016_dist_all,file=paste0(dir_monitor_correlation,'comb_data_monitor_0016_dist_all.rds'))
+saveRDS(comb_data_monitor_0016_dist_all,file=paste0(dir_monitor_correlation,'comb_data_monitor_0016_dist_all_sensitivity.rds'))
 
 
 
 #################### 3. coefficients for spatial correlation among monitored sites ######################
-summary(lm(res1_less10km~res2_avg_less10km+res2_avg_10_20km+res2_avg_20_40km, 
-         na.action=na.omit,data=comb_data_monitor_0016_dist_all))
-
+summary(lm(res1_less10km~res2_avg_less10km+res2_avg_10_20km+res2_avg_20_40km+res2_avg_40_100km, 
+           na.action=na.omit,data=comb_data_monitor_0016_dist_all))
 # Call:
 #   lm(formula = res1_less10km ~ res2_avg_less10km + res2_avg_10_20km + 
-#        res2_avg_20_40km, data = comb_data_monitor_0016_dist_all, 
+#        res2_avg_20_40km + res2_avg_40_100km, data = comb_data_monitor_0016_dist_all, 
 #      na.action = na.omit)
 # 
 # Residuals:
 #   Min       1Q   Median       3Q      Max 
-# -11.0860  -0.1509  -0.0076   0.1189  14.3634 
+# -10.9989  -0.1570  -0.0062   0.1284  14.4026 
 # 
 # Coefficients:
-# Estimate Std. Error t value Pr(>|t|)    
-# (Intercept)       -0.006525   0.009324  -0.700  0.48410    
-# res2_avg_less10km  0.873326   0.011333  77.059  < 2e-16 ***
-# res2_avg_10_20km   0.033130   0.011822   2.802  0.00509 ** 
-# res2_avg_20_40km   0.046112   0.012102   3.810  0.00014 ***
+#   Estimate Std. Error t value Pr(>|t|)    
+#   (Intercept)       -0.008100   0.009895  -0.819  0.41306    
+#   res2_avg_less10km  0.867077   0.011773  73.647  < 2e-16 ***
+#   res2_avg_10_20km   0.029629   0.012639   2.344  0.01910 *  
+#   res2_avg_20_40km   0.038560   0.014477   2.664  0.00775 ** 
+#   res2_avg_40_100km  0.017282   0.019733   0.876  0.38118    
 # ---
-# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 # 
-# Residual standard error: 0.7079 on 5910 degrees of freedom
-# (29752 observations deleted due to missingness)
-# Multiple R-squared:  0.5395,	Adjusted R-squared:  0.5393 
-# F-statistic:  2308 on 3 and 5910 DF,  p-value: < 2.2e-16
+# Residual standard error: 0.7115 on 5684 degrees of freedom
+# (30198 observations deleted due to missingness)
+# Multiple R-squared:  0.5249,	Adjusted R-squared:  0.5246 
+# F-statistic:  1570 on 4 and 5684 DF,  p-value: < 2.2e-16
 
 
 
@@ -232,3 +245,23 @@ join_zip_20_40km_all$year <- as.character(join_zip_20_40km_all$year)
 join_zip_20_40km_all <- unique(join_zip_20_40km_all)
 saveRDS(join_zip_20_40km_all,paste0(dir_monitor_correlation,"join_zip_20_40km_all.rds"))
 
+# 40-100km
+join_zip_40_100km <- st_join(dat_zip,dat_zip,join=st_nn,maxdist=100000,k=1000) #maxdist in meters
+join_zip_40_100km$geometry <- NULL
+join_zip_40_100km <- join_zip_40_100km[join_zip_40_100km$zip.x!=join_zip_40_100km$zip.y,]
+join_zip_40_100km <- join_zip_40_100km %>% anti_join(join_zip_less10km)  # exclude those <10km
+join_zip_40_100km <- join_zip_40_100km %>% anti_join(join_zip_10_20km)  # exclude those between 10-20km
+join_zip_40_100km <- join_zip_40_100km %>% anti_join(join_zip_20_40km)  # exclude those between 20-40km
+ls_zip_40_100km <- list()
+for (i in 1:length(years)) {
+  join_zip_40_100km_tmp <- join_zip_40_100km
+  join_zip_40_100km_tmp$year <- years[i]
+  ls_zip_40_100km[[i]] <- join_zip_40_100km_tmp
+  rm(join_zip_40_100km_tmp)
+  gc()
+}
+join_zip_40_100km_all <- rbindlist(ls_zip_40_100km)
+names(join_zip_40_100km_all) <- c('zipcode','zipcode_near','year')
+join_zip_40_100km_all$year <- as.character(join_zip_40_100km_all$year)
+join_zip_40_100km_all <- unique(join_zip_40_100km_all)
+saveRDS(join_zip_40_100km_all,paste0(dir_monitor_correlation,"join_zip_40_100km_all.rds"))

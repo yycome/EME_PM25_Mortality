@@ -1,6 +1,7 @@
 #################################################################################
 # Project: Exposure measurement error                                           #
-# Code: Step 3 - generate datasets for simulation                               #
+# Code: Step 3. sensitivity analaysis - generate datasets for simulation with   #
+#               range of spatial correlation 40-100km                           #
 # Machine: QNAP                                                                 #
 #################################################################################
 
@@ -14,6 +15,7 @@ library(dplyr)
 
 dir_uncertainty <- '/media/qnap4/Yaguang/EME/data/Uncertainty/'
 dir_simulation <- '/media/qnap4/Yaguang/EME/data/SimulationData/'
+dir_simulation_sensitivity <- '/media/qnap4/Yaguang/EME/data/SimulationData_Sensitivity/'
 dir_monitor_correlation <- '/media/qnap4/Yaguang/EME/data/SpatialCorrelation/'
 
 
@@ -61,7 +63,7 @@ for (i in 1:20) {
     gc()
   }
   counts_covar_simu_set_50 <- counts_covar_simu_set_50[,c('zip','year','pm25','annual_ind_err_sd','annual_ind_err_2sd','annual_ind_err_3sd')]
-  saveRDS(counts_covar_simu_set_50,file = paste0(dir_simulation,'counts_covar_simu_set_50_p',i,'.rds'))
+  saveRDS(counts_covar_simu_set_50,file = paste0(dir_simulation_sensitivity,'counts_covar_simu_set_50_p',i,'.rds'))
   rm(counts_covar_simu_set_50)
   gc()
 }
@@ -73,9 +75,10 @@ for (i in 1:20) {
 join_zip_less10km <- readRDS(paste0(dir_monitor_correlation,"join_zip_less10km_all.rds"))
 join_zip_10_20km <- readRDS(paste0(dir_monitor_correlation,"join_zip_10_20km_all.rds"))
 join_zip_20_40km <- readRDS(paste0(dir_monitor_correlation,"join_zip_20_40km_all.rds"))
+join_zip_40_100km <- readRDS(paste0(dir_monitor_correlation,"join_zip_40_100km_all.rds"))
 
 # create a function to add spatial correlation adjustment 
-spatial_corr_adj_add <- function(data_counts,join_zip_less10km,join_zip_10_20km,join_zip_20_40km,b0,b1,b2,b3){
+spatial_corr_adj_add <- function(data_counts,join_zip_less10km,join_zip_10_20km,join_zip_20_40km,join_zip_40_100km,b0,b1,b2,b3,b4){
   # merge in the error for <=10km. should have all the merged annual errors for nearest zipcodes for each zipcode in the dataset 
   join_zip_less10km <- merge(join_zip_less10km,data_counts[c("zip","year","pm25","annual_ind_err_sd","annual_ind_err_2sd","annual_ind_err_3sd")],
                              all.x=TRUE,by.x=c('zipcode_near','year'),by.y=c('zip','year')) 
@@ -121,6 +124,21 @@ spatial_corr_adj_add <- function(data_counts,join_zip_less10km,join_zip_10_20km,
   rm(join_zip_20_40km,output_20_40km_sd,output_20_40km_2sd,output_20_40km_3sd,output_20_40km)
   gc()
   
+  # do the same for 40-100km
+  join_zip_40_100km <- merge(join_zip_40_100km,data_counts[c("zip","year","pm25","annual_ind_err_sd","annual_ind_err_2sd","annual_ind_err_3sd")],
+                             all.x=TRUE,by.x=c('zipcode_near','year'),by.y=c('zip','year')) 
+  # compute the mean annual error for each zipcode
+  output_40_100km_sd <- join_zip_40_100km %>% group_by(year,zipcode) %>% summarize(annual_ind_err_sd_avg_40_100km=mean(annual_ind_err_sd,na.rm=TRUE))
+  output_40_100km_2sd <- join_zip_40_100km %>% group_by(year,zipcode) %>% summarize(annual_ind_err_2sd_avg_40_100km=mean(annual_ind_err_2sd,na.rm=TRUE))
+  output_40_100km_3sd <- join_zip_40_100km %>% group_by(year,zipcode) %>% summarize(annual_ind_err_3sd_avg_40_100km=mean(annual_ind_err_3sd,na.rm=TRUE))
+  output_40_100km <- left_join(output_40_100km_sd,output_40_100km_2sd,by=c('zipcode','year'))
+  output_40_100km <- left_join(output_40_100km,output_40_100km_3sd,by=c('zipcode','year'))
+  # link back to original count data
+  data_counts <- merge(data_counts,output_40_100km,all.x=TRUE,by.x=c('zip','year'),by.y=c('zipcode','year'))
+  # clean up memory
+  rm(join_zip_40_100km,output_40_100km_sd,output_40_100km_2sd,output_40_100km_3sd,output_40_100km)
+  gc()
+  
   # replace NAs with 0s
   data_counts$annual_ind_err_sd_avg_less10km <- ifelse(is.na(data_counts$annual_ind_err_sd_avg_less10km),0,data_counts$annual_ind_err_sd_avg_less10km)
   data_counts$annual_ind_err_2sd_avg_less10km <- ifelse(is.na(data_counts$annual_ind_err_2sd_avg_less10km),0,data_counts$annual_ind_err_2sd_avg_less10km)
@@ -131,19 +149,22 @@ spatial_corr_adj_add <- function(data_counts,join_zip_less10km,join_zip_10_20km,
   data_counts$annual_ind_err_sd_avg_20_40km <- ifelse(is.na(data_counts$annual_ind_err_sd_avg_20_40km),0,data_counts$annual_ind_err_sd_avg_20_40km)
   data_counts$annual_ind_err_2sd_avg_20_40km <- ifelse(is.na(data_counts$annual_ind_err_2sd_avg_20_40km),0,data_counts$annual_ind_err_2sd_avg_20_40km)
   data_counts$annual_ind_err_3sd_avg_20_40km <- ifelse(is.na(data_counts$annual_ind_err_3sd_avg_20_40km),0,data_counts$annual_ind_err_3sd_avg_20_40km)
+  data_counts$annual_ind_err_sd_avg_40_100km <- ifelse(is.na(data_counts$annual_ind_err_sd_avg_40_100km),0,data_counts$annual_ind_err_sd_avg_40_100km)
+  data_counts$annual_ind_err_2sd_avg_40_100km <- ifelse(is.na(data_counts$annual_ind_err_2sd_avg_40_100km),0,data_counts$annual_ind_err_2sd_avg_40_100km)
+  data_counts$annual_ind_err_3sd_avg_40_100km <- ifelse(is.na(data_counts$annual_ind_err_3sd_avg_40_100km),0,data_counts$annual_ind_err_3sd_avg_40_100km)
   
-  # add spatial correlation to independent error using the monitor spatial correlation coefficients b0, b1, b2, b3
-  # new error = old error-0.006525+0.873326*err_less10km+0.033130*err_10_20km+0.046112*err_20_40km
-  # if any of the <=10km, 10-20km, or 20-40km average error takes missing values, do not apply the correction formula
+  # add spatial correlation to independent error using the monitor spatial correlation coefficients b0, b1, b2, b3, b4
+  # new error = old error-0.008100+0.867077*err_less10km+0.029629*err_10_20km+0.038560*err_20_40km+0.017282*err_40_100km
+  # if any of the <=10km, 10-20km, 20-40km, 40-100km average error takes missing values, do not apply the correction formula
   data_counts$annual_sp_err_sd <- ifelse(((data_counts$annual_ind_err_sd_avg_less10km==0)|(data_counts$annual_ind_err_sd_avg_10_20km==0)|(data_counts$annual_ind_err_sd_avg_20_40km==0)), # 0 indicates missing originally 
                                          data_counts$annual_ind_err_sd, 
-                                         data_counts$annual_ind_err_sd+b0+b1*data_counts$annual_ind_err_sd_avg_less10km+b2*data_counts$annual_ind_err_sd_avg_10_20km+b3*data_counts$annual_ind_err_sd_avg_20_40km)
+                                         data_counts$annual_ind_err_sd+b0+b1*data_counts$annual_ind_err_sd_avg_less10km+b2*data_counts$annual_ind_err_sd_avg_10_20km+b3*data_counts$annual_ind_err_sd_avg_20_40km+b4*data_counts$annual_ind_err_sd_avg_40_100km)
   data_counts$annual_sp_err_2sd <- ifelse(((data_counts$annual_ind_err_2sd_avg_less10km==0)|(data_counts$annual_ind_err_2sd_avg_10_20km==0)|(data_counts$annual_ind_err_2sd_avg_20_40km==0)), # 0 indicates missing originally 
                                           data_counts$annual_ind_err_2sd, 
-                                          data_counts$annual_ind_err_2sd+b0+b1*data_counts$annual_ind_err_2sd_avg_less10km+b2*data_counts$annual_ind_err_2sd_avg_10_20km+b3*data_counts$annual_ind_err_2sd_avg_20_40km)
+                                          data_counts$annual_ind_err_2sd+b0+b1*data_counts$annual_ind_err_2sd_avg_less10km+b2*data_counts$annual_ind_err_2sd_avg_10_20km+b3*data_counts$annual_ind_err_2sd_avg_20_40km+b4*data_counts$annual_ind_err_2sd_avg_40_100km)
   data_counts$annual_sp_err_3sd <- ifelse(((data_counts$annual_ind_err_3sd_avg_less10km==0)|(data_counts$annual_ind_err_3sd_avg_10_20km==0)|(data_counts$annual_ind_err_3sd_avg_20_40km==0)), # 0 indicates missing originally 
                                           data_counts$annual_ind_err_3sd, 
-                                          data_counts$annual_ind_err_3sd+b0+b1*data_counts$annual_ind_err_3sd_avg_less10km+b2*data_counts$annual_ind_err_3sd_avg_10_20km+b3*data_counts$annual_ind_err_3sd_avg_20_40km)
+                                          data_counts$annual_ind_err_3sd+b0+b1*data_counts$annual_ind_err_3sd_avg_less10km+b2*data_counts$annual_ind_err_3sd_avg_10_20km+b3*data_counts$annual_ind_err_3sd_avg_20_40km+b4*data_counts$annual_ind_err_3sd_avg_40_100km)
   
   data_counts <- data_counts[,c("zip","year","pm25",
                                 "annual_ind_err_sd","annual_ind_err_2sd","annual_ind_err_3sd",
@@ -154,7 +175,7 @@ spatial_corr_adj_add <- function(data_counts,join_zip_less10km,join_zip_10_20km,
 
 # generate spatially adjusted errors for each dataset each piece
 for (i in 1:20){
-  counts_covar_simu_set_50 <- readRDS(paste0(dir_simulation,'counts_covar_simu_set_50_p',i,'.rds'))
+  counts_covar_simu_set_50 <- readRDS(paste0(dir_simulation_sensitivity,'counts_covar_simu_set_50_p',i,'.rds'))
   new_data <- data.frame()
   for (j in 1:50) {
     n1 <- 649910*(j-1)+1
@@ -163,16 +184,18 @@ for (i in 1:20){
                                      join_zip_less10km=join_zip_less10km,
                                      join_zip_10_20km=join_zip_10_20km,
                                      join_zip_20_40km=join_zip_20_40km,
-                                     b0=-0.006525,
-                                     b1=0.873326,
-                                     b2=0.033130,
-                                     b3=0.046112)
+                                     join_zip_40_100km=join_zip_40_100km,
+                                     b0=-0.008100,
+                                     b1=0.867077,
+                                     b2=0.029629,
+                                     b3=0.038560,
+                                     b4=0.017282)
     new_data <- rbind(new_data,add_data)
     print(paste0("set ",i,'-',j," is done"))
     rm(add_data)
     gc()
   }
-  saveRDS(new_data,file = paste0(dir_simulation,'counts_covar_simu_set_50_p',i,'.rds'))
+  saveRDS(new_data,file = paste0(dir_simulation_sensitivity,'counts_covar_simu_set_50_p',i,'.rds'))
   rm(counts_covar_simu_set_50,new_data)
   gc()
 }

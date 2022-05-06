@@ -1,7 +1,7 @@
 ###############################################################################
 # Project: Exposure measurement error                                         #
 # Code: Step 4 - simulation - linear dr relation                              #
-# Machine: Cannon                                                             #
+# Machine: QNAP                                                               #
 ###############################################################################
 
 ######################################### 0. set up ################################################
@@ -16,8 +16,8 @@ library(mgcv)
 library(dplyr)
 library(doParallel)
 
-dir_data <- '~/data/'    ### change data directory
-dir_results <- '~/results/Linear/'   ### change directory for saving results
+dir_data <- '/media/qnap4/Yaguang/EME/data/SimulationData/'
+dir_results <- '/media/qnap4/Yaguang/EME/results/Linear/'  ### create directory to save results
 
 
 
@@ -50,7 +50,7 @@ simulate_results <- function(key,covar,b0,b1,n.reps){
   # 
   # key_files <- list.files(path=dir_data,pattern = "^counts_covar_simu_set_50_(.*)rds$")
   # key <- readRDS(paste0(dir_data,key_files[1]))
-  # 
+  #
   # b0 <- log(8)
   # b1 <- 0.005
   # n.reps <- 50
@@ -64,7 +64,7 @@ simulate_results <- function(key,covar,b0,b1,n.reps){
   
   # run in loops 
   for (i in 1:n.reps){
-    # i=2
+    # i=1
     cat(paste0("set ",i," starts running \n"))
     # create start/end index 
     start <- (i-1)*649910+1
@@ -537,13 +537,14 @@ covar$region5_5 <- ifelse(covar$region5==5,1,0)
 
 # read in measurement error datasets
 key_files <- list.files(path=dir_data,pattern = "^counts_covar_simu_set_50_(.*)rds$")
+key <- readRDS(paste0(dir_data,key_files[1]))
 
 # parameter setting
 b0_list <- c(log(8),log(12),log(20))
 b1_list <- c(0,0.005,0.012,0.019)
 n.reps <- 50
 
-cl = makeCluster(5,outfile='')        ### change number of clusters to parallel
+cl = makeCluster(25,outfile='')    ### change number of clusters
 registerDoParallel(cl)
 
 tmp <- foreach(i=1:length(key_files))%dopar%{
