@@ -1,6 +1,6 @@
 ###############################################################################
 # Project: Exposure measurement error                                         #
-# Code: Step 4 - simulation - quadratic dr relation, quadratic epi model      #
+# Code: Step 4 - simulation - quadratic cr relation, quadratic epi model      #
 # Machine: QNAP                                                               #
 ###############################################################################
 
