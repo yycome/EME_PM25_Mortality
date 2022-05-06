@@ -1,6 +1,6 @@
 ###############################################################################
 # Project: Exposure measurement error                                         #
-# Code: Step 4 - simulation - soft-threshold dr relation, penalized epi model #
+# Code: Step 4 - simulation - soft-threshold cr relation, penalized epi model #
 # Machine: Cannon                                                             #
 ###############################################################################
 
