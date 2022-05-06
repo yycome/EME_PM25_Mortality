@@ -1,7 +1,7 @@
 #################################################################################
 # Project: Exposure measurement error                                           #
 # Code: Step 3. sensitivity analaysis - generate datasets for simulation with   #
-#               range of spatial correlation 40-100km                           #
+#               range of spatial correlation 0-100km                            #
 # Machine: QNAP                                                                 #
 #################################################################################
 
